@@ -30,6 +30,23 @@ spec:
           ports:
             - containerPort: 8086
 
+          # ✅ CRITICAL FIX (your main issue)
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8086
+#            initialDelaySeconds: 25
+#            periodSeconds: 5
+#            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8086
+#            initialDelaySeconds: 40
+#            periodSeconds: 10
+#            failureThreshold: 3
+
           volumeMounts:
             - mountPath: /opt/logs/intellifleet-core-api
               name: log-volume
