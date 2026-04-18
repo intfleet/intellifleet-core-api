@@ -14,7 +14,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 25%
+      maxUnavailable: 0     # ✅ don't kill old until new is ready
+      maxSurge: 1           # ✅ create 1 extra pod during update
 
   template:
     metadata:
@@ -24,11 +25,28 @@ spec:
     spec:
       containers:
         - name: intellifleet-core-api
-          image: intellifleet-core-api-image:latest
-          imagePullPolicy: Never
+          image: intellifleet-core-api-image:__VERSION__   # ✅ NO latest
+          imagePullPolicy: Always                         # ✅ always pull new
 
           ports:
             - containerPort: 8086
+
+          # ✅ CRITICAL FIX (your main issue)
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8086
+            initialDelaySeconds: 25
+            periodSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8086
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            failureThreshold: 3
 
           volumeMounts:
             - mountPath: /opt/logs/intellifleet-core-api
