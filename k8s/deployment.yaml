@@ -14,8 +14,7 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 0     # ✅ don't kill old until new is ready
-      maxSurge: 1           # ✅ create 1 extra pod during update
+      maxSurge: 25%
 
   template:
     metadata:
