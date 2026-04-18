@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: intellifleet-core-api
-          image: intellifleet-core-api-image:__BUILD_NUMBER__   # ✅ NO latest
+          image: intellifleet-core-api-image:BUILD_NUMBER   # ✅ NO latest
           imagePullPolicy: Always                         # ✅ always pull new
 
           ports:
