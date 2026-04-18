@@ -28,7 +28,7 @@ spec:
           imagePullPolicy: Never
 
           ports:
-            - containerPort: 8084
+            - containerPort: 8086
 
           volumeMounts:
             - mountPath: /opt/logs/intellifleet-core-api
