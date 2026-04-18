@@ -1,0 +1,14 @@
+{
+  "id": 1,
+  "name": "trip",
+  "object": "trip",
+  "fields": [
+    { "id": 1, "name": "first_name", fieldType: FIELD_TYPES.TEXT, dataType: DATA_TYPES.STRING },
+    { "id": 2, "name": "last_name", fieldType: FIELD_TYPES.TEXT, dataType: DATA_TYPES.STRING },
+    { id: 3, name: "dob", fieldType: FIELD_TYPES.DATE, dataType: DATA_TYPES.DATE },
+    { id: 4, name: "email", fieldType: FIELD_TYPES.EMAIL, dataType: DATA_TYPES.STRING },
+    { id: 5, name: "phone", fieldType: FIELD_TYPES.PHONE, dataType: DATA_TYPES.STRING },
+    { id: 6, name: "aadhaar", fieldType: FIELD_TYPES.AADHAAR_NUMBER, dataType: DATA_TYPES.STRING },
+    { id: 6, name: "is_married", fieldType: FIELD_TYPES.CHECK_BOX, dataType: DATA_TYPES.BOOLEAN },
+  ]
+}
