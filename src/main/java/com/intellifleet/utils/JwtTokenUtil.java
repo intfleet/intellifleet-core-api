@@ -40,10 +40,10 @@ public class JwtTokenUtil implements Serializable {
 	public String generateToken(UserContext userContext) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("username", userContext.getUsername());
-		claims.put("roles", userContext.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+//		claims.put("roles", userContext.getAuthorities().stream()
+//				.map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
 
-		claims.put("user", userContext.getUserDetailsBean());
+		claims.put("coreMatrix", userContext.getCoreMatrixBean());
 
 		JwtBuilder jwtBuilder = Jwts.builder()
 				.setSubject(userContext.getUsername())

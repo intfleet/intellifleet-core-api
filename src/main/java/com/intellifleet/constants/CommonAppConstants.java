@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
-public class CommonAppConstants {
+public interface CommonAppConstants {
 	
 	public static final String STRING_TIMEZONE_ID_IST = "IST";
 	public static final String STRING_TIMEZONE_ID_UTC = "UTC";
@@ -40,38 +40,15 @@ public class CommonAppConstants {
 	public static final String RESP_STATUS_MSG_RECORD_CANCELED = "Record canceled";
 	public static final String RESP_STATUS_MSG_UNSUPPORTED_MEDIA_TYPE = "Unsupported media type";
 	
-	public static final Map<Integer, String> STATUS_MESSAGE = new HashMap<>();
-	static {
-		
-		STATUS_MESSAGE.put(RESP_STATUS_SUCCESS, RESP_STATUS_MSG_SUCCESS);
-		STATUS_MESSAGE.put(RESP_STATUS_USER_CONTEXT_NOT_FOUND_EXCEPTION, RESP_STATUS_MSG_USER_CONTEXT_NOT_FOUND);
-		
-		STATUS_MESSAGE.put(RESP_STATUS_NO_RECORD_FOUND_EXCEPTION, RESP_STATUS_MSG_NO_RECORD_FOUND);
-		STATUS_MESSAGE.put(RESP_STATUS_RECORD_ID_NOT_FOUND_EXCEPTION, RESP_STATUS_MSG_RECORD_ID_NOT_FOUND);
-		STATUS_MESSAGE.put(RESP_STATUS_DUPLICATE_RECORD_EXCEPTION, RESP_STATUS_MSG_DUPLICATE_RECORD);
-		STATUS_MESSAGE.put(RESP_STATUS_INVALID_CONFIRM_PASSWORD_EXCEPTION, RESP_STATUS_MSG_INVALID_CONFIRM_PASSWORD);
-		STATUS_MESSAGE.put(RESP_STATUS_INVALID_CREDENTIALS_EXCEPTION, RESP_STATUS_MSG_INVALID_CREDENTIALS);
-		STATUS_MESSAGE.put(RESP_STATUS_RECORD_CANCELED_EXCEPTION, RESP_STATUS_MSG_RECORD_CANCELED);
-		STATUS_MESSAGE.put(RESP_STATUS_UNSUPPORTED_MEDIA_TYPE_EXCEPTION, RESP_STATUS_MSG_UNSUPPORTED_MEDIA_TYPE);
-	}
+
 	
 
 	public static final String LINK_OBJECT_MAINTENANCE = "link_flat_details_user_details";
-	
+
+	public final Map<Integer, String> STATUS_MESSAGE = new HashMap<>();
 	public static final Map<String, Class> LINK_OBJECT_ENTITY_MAP = new HashMap<>();
-	static {
-		//LINK_OBJECT_ENTITY_MAP.put(LINK_OBJECT_MAINTENANCE, LinkFlatDetailsAndUserDetailsEntity.class);
-	}
 	
-	
-	public static <T> T createInstByTableName(String tableName) throws InstantiationException, IllegalAccessException {
-		if(tableName != null) {
-			tableName = tableName.toLowerCase();
-			Class<?> clss = CommonAppConstants.LINK_OBJECT_ENTITY_MAP.get(tableName);
-			return clss != null ? (T) clss.newInstance() : null;
-		}
-		return null;		
-	}
+
 	
 	public static final long INVALID_RECORD_ID = -9999;
 	public static final long SYSTEM_USER_ID = -99999;
@@ -111,4 +88,6 @@ public class CommonAppConstants {
 	}
 	
 	public static Map<Long, String> USER_NAME_BY_ID = new HashMap<>();
+
+
 }

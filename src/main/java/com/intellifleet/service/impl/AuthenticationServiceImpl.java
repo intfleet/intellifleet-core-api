@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.intellifleet.constants.ApiHttpStatus;
+import com.intellifleet.service.AdvancedJWTService;
+import com.intellifleet.utils.AdvanceJWTTokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	JwtTokenUtil jwtTokenUtil;
 
+	@Autowired
+	AdvancedJWTService advancedJWTService;
+
 	@Override
 	public ApiResponseEntity getAuthenticationDetails(JwtRequestDTO reqDTO, boolean isSessionListRequired)
 			throws Exception {
@@ -41,9 +46,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		
 		UserContext userContext = jwtUserDetailsService.loadUserByUsername(reqDTO.getUserName());
 		final String token = jwtTokenUtil.generateToken(userContext);
-		
+		String projectToken = advancedJWTService.generateToken(userContext);
+
+
 		Map<String, Object> map = new HashMap<>();
 		map.put("token", token);
+//		map.put("projectToken", projectToken);
+		map.put("redirectURI", "http://localhost:5174?refid="+userContext.getCoreMatrixBean().getCustomerUid());
 		/*	This are not required. We can add this info to token payload and retrieve from React by installing jwt-decode
 			npm install jwt-decode
 			const decoded = jwtDecode(token);

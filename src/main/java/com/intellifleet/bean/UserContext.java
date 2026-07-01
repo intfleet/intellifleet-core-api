@@ -5,6 +5,7 @@ package com.intellifleet.bean;
 
 import java.util.Collection;
 
+import com.intellifleet.constants.AppConstants;
 import com.intellifleet.constants.CommonAppConstants;
 import com.intellifleet.entity.CustomerMasterEntity;
 import com.intellifleet.exceptions.UserContextNotFoundException;
@@ -27,26 +28,23 @@ public class UserContext extends User {
 	
 	private static final long serialVersionUID = 441580371269041751L;
 	
-	UserDetailsBean userDetailsBean;
-	CustomerMasterEntity customerMaster;
-	
-	private Long sessionId;
-	
+	CoreMatrixBean coreMatrixBean;
+
 	public UserContext(String username, String password, Collection<? extends GrantedAuthority> authorities) {
 		super(username, password, authorities);
 	}
 	
-	public UserContext(UserDetailsBean userDetailsBean, 
+	public UserContext(CoreMatrixBean coreMatrixBean,
 			Collection<? extends GrantedAuthority> authorities) {
 		//Here db userUId is eqaual to spring security username.
-		super(userDetailsBean.getUserUid(), userDetailsBean.getUserPassword(), authorities);
-		this.userDetailsBean = userDetailsBean;
+		super(coreMatrixBean.getUserId(), coreMatrixBean.getUserPassword(), authorities);
+		this.coreMatrixBean = coreMatrixBean;
 	}
 	
 
 	public Long getEntityId() {
-		if(customerMaster != null) {
-			return customerMaster.getRowWid();
+		if(coreMatrixBean != null) {
+			return coreMatrixBean.getCustomerUid();
 		}
 		return null;
 	}
@@ -55,7 +53,7 @@ public class UserContext extends User {
 		Authentication obj = SecurityContextHolder.getContext().getAuthentication();
 		UserContext cntx = (UserContext)obj.getPrincipal();
 		if(cntx == null) {
-			throw new UserContextNotFoundException(CommonAppConstants.STATUS_MESSAGE.get(CommonAppConstants.RESP_STATUS_USER_CONTEXT_NOT_FOUND_EXCEPTION));
+			throw new UserContextNotFoundException(AppConstants.STATUS_MESSAGE.get(CommonAppConstants.RESP_STATUS_USER_CONTEXT_NOT_FOUND_EXCEPTION));
 		}
 		return cntx;
 	}

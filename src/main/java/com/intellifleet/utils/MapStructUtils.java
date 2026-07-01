@@ -1,9 +1,12 @@
 package com.intellifleet.utils;
 
+import com.intellifleet.bean.CoreMatrixBean;
 import com.intellifleet.dto.*;
 import com.intellifleet.entity.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface MapStructUtils {
@@ -28,4 +31,16 @@ public interface MapStructUtils {
     FormListViewDTO toFormListViewDTO(FormEntity entity);
 
     QueryDTO toQueryDTO(QueryEntity entity);
+
+    @Mapping(target = "instrumentId", source = "id.instrumentId")
+    @Mapping(target = "commodityId", source = "id.commodityId")
+    @Mapping(target = "customerUid", source = "id.customerUid")
+    CoreMatrixBean toCoreMatrixBean(CoreMatrixView coreMatrixView);
+
+    @Mapping(target = "instrumentId", source = "id.instrumentId")
+    @Mapping(target = "commodityId", source = "id.commodityId")
+    @Mapping(target = "customerUid", source = "id.customerUid")
+    ResourceDTO toResourceDTO(CoreMatrixView coreMatrixView);
+
+    List<ResourceDTO> toResourceDTO(List<CoreMatrixView> coreMatrixViewList);
 }

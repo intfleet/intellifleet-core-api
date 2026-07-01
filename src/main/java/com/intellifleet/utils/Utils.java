@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellifleet.bean.UserContext;
+import com.intellifleet.constants.AppConstants;
 import com.intellifleet.constants.CommonAppConstants;
 import com.intellifleet.dto.FormDTO;
 import com.intellifleet.exceptions.UserContextNotFoundException;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @UtilityClass
@@ -28,7 +30,7 @@ public class Utils {
         Authentication obj = SecurityContextHolder.getContext().getAuthentication();
         UserContext cntx = (UserContext)obj.getPrincipal();
         if(cntx == null) {
-            throw new UserContextNotFoundException(CommonAppConstants.STATUS_MESSAGE.get(CommonAppConstants.RESP_STATUS_USER_CONTEXT_NOT_FOUND_EXCEPTION));
+            throw new UserContextNotFoundException(AppConstants.STATUS_MESSAGE.get(CommonAppConstants.RESP_STATUS_USER_CONTEXT_NOT_FOUND_EXCEPTION));
         }
         return cntx;
     }
@@ -48,6 +50,16 @@ public class Utils {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(content, clazz);
         } catch (JsonProcessingException e){
+            log.error(e.getMessage());
+        }
+        return null;
+    }
+
+    public <T> T parseJSON(Map<?, ?> content, Class<T> clazz) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.convertValue(content, clazz);
+        } catch (Exception e){
             log.error(e.getMessage());
         }
         return null;

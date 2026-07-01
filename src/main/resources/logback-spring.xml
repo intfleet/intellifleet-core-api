@@ -1,0 +1,126 @@
+<configuration scan="true" scanPeriod="30 seconds" debug="false" shutdownHook="true">
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    <!--
+            ╔══════════════════════════════════════════════════════════════════╗
+            ║           FUNDTAP LOGBACK CONFIGURATION                          ║
+            ║  - Date + Size rolling (NZ timezone - Pacific/Auckland)          ║
+            ║  - Active file capped at 50MB — rolls immediately when hit       ║
+            ║  - All restarts append to existing file (no log loss)            ║
+            ║  - Async non-blocking writes with shutdown flush                 ║
+            ║  - Profile-based: local / dev / staging / qa / prod              ║
+            ║  - 15 days retention, 500MB total cap, 50MB per file             ║
+            ║  - Hot reload log levels without restart (scan=true)             ║
+            ║  - MDC traceId support for distributed tracing                   ║
+            ╚══════════════════════════════════════════════════════════════════╝
+         -->
+    <!--   ═══════════════════════════════════════════════════════════════
+                 SPRING PROPERTIES
+            ═══════════════════════════════════════════════════════════════   -->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="app"/>
+    <springProperty scope="context" name="LOG_DIR" source="logging.file.path" defaultValue="./logs"/>
+    <springProperty scope="context" name="MAX_HISTORY" source="logging.logback.rollingpolicy.max-history"
+                    defaultValue="7"/>
+    <springProperty scope="context" name="TOTAL_SIZE_CAP" source="logging.logback.rollingpolicy.total-size-cap"
+                    defaultValue="500MB"/>
+    <springProperty scope="context" name="MAX_FILE_SIZE" source="logging.logback.rollingpolicy.max-file-size"
+                    defaultValue="50MB"/>
+    <springProperty scope="context" name="APP_LOG_LEVEL" source="logging.level.com.fundtap" defaultValue="INFO"/>
+    <!--   ═══════════════════════════════════════════════════════════════
+                 PATTERNS
+            ═══════════════════════════════════════════════════════════════   -->
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS, Pacific/Auckland} [%thread] [%X{traceId:-NO_TRACE}] %-5level %logger{50} - %msg%n"/>
+    <property name="CONSOLE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS, Pacific/Auckland} [%thread] %-5level %logger{50} - %msg%n"/>
+    <!--   ═══════════════════════════════════════════════════════════════
+                 APPENDER 1 — CONSOLE
+            ═══════════════════════════════════════════════════════════════   -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--   ═══════════════════════════════════════════════════════════════
+                 APPENDER 2 — ROLLING FILE (Date + Size, active file capped)
+
+                 SizeAndTimeBasedRollingPolicy enforces MAX_FILE_SIZE on the
+                 ACTIVE log file in real-time — it will NOT grow past 50 MB.
+            ═══════════════════════════════════════════════════════════════   -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${LOG_DIR}/archived/${APP_NAME}-%d{yyyy-MM-dd,Pacific/Auckland}.%i.log.gz
+            </fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <!--   active file hard cap — rolls immediately at 50MB   -->
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <!--   keep last 15 days of archives                     -->
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <!--   hard cap across all archives combined             -->
+            <cleanHistoryOnStart>false</cleanHistoryOnStart>
+            <!--   never delete archives on restart                  -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <!--   ═══════════════════════════════════════════════════════════════
+                 APPENDER 3 — ASYNC WRAPPER
+                 Disk I/O on separate thread — never blocks request threads
+                 discardingThreshold=0  → never silently drop logs under load
+                 neverBlock=false       → block if queue full, safer than loss
+            ═══════════════════════════════════════════════════════════════   -->
+    <appender name="ASYNC_ROLLING_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="ROLLING_FILE"/>
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <neverBlock>false</neverBlock>
+    </appender>
+    <!--   ═══════════════════════════════════════════════════════════════
+                 NOISE REDUCTION
+            ═══════════════════════════════════════════════════════════════   -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="WARN"/>
+    <!--   → DEBUG to see SQL queries   -->
+    <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
+    <!--   → TRACE to see bind params   -->
+    <logger name="com.zaxxer.hikari" level="WARN"/>
+    <logger name="io.lettuce" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.http" level="WARN"/>
+    <logger name="com.fundtap" level="${APP_LOG_LEVEL}"/>
+    <!--   ═══════════════════════════════════════════════════════════════
+                 PROFILES
+            ═══════════════════════════════════════════════════════════════   -->
+    <springProfile name="local,dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_ROLLING_FILE"/>
+        </root>
+    </springProfile>
+    <springProfile name="dev,test">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_ROLLING_FILE"/>
+        </root>
+    </springProfile>
+<!--    <springProfile name="prod,production">-->
+<!--        <root level="INFO">-->
+<!--            <appender-ref ref="CONSOLE"/>-->
+<!--            <appender-ref ref="ASYNC_ROLLING_FILE"/>-->
+<!--        </root>-->
+<!--    </springProfile>-->
+    <springProfile name="default">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_ROLLING_FILE"/>
+        </root>
+    </springProfile>
+</configuration>

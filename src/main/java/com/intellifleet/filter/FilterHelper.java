@@ -83,23 +83,22 @@ public class FilterHelper {
 		}
 	}
 	
-	private UserContext getUserContext(HttpServletRequest request, String username) {				
-		
+	public UserContext getUserContext(HttpServletRequest request, String username) {
 //		return jwtUserDetailsService.loadUserByUsername(username);
-		
+
 		final String entityId = request.getHeader(CommonAppConstants.REQ_HEADER_ENTITY_ID);
-		
+
 		UserContext userContext = this.jwtUserDetailsService.loadUserByUsername(username);
-		
+
 		if(!StringUtils.isEmpty(entityId) && ParameterVerifier.getLong(entityId) > 0) {
 			CustomerMasterEntity customerMaster = genericRepository.findById(CustomerMasterEntity.class, Long.parseLong(entityId));
 			if(customerMaster == null) {
 				log.error("Entity not found!!");
 				throw new EntityNotFoundException();
 			}
-			userContext.setCustomerMaster(customerMaster);
+			//userContext.setCustomerMaster(customerMaster);
 		}
-		
+
 		return userContext;
 	}
 

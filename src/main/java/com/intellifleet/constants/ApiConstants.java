@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ApiConstants extends CommonAppConstants {
+public class ApiConstants implements CommonAppConstants {
 	
 	public static final String STRING_TIMEZONE_ID_IST = "IST";
 	public static final String STRING_TIMEZONE_ID_UTC = "UTC";
